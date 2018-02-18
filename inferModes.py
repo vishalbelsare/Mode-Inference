@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
 
 from __future__ import print_function
 from collections import Counter
+from copy import deepcopy
+from random import choice
 import argparse
 import re
 
@@ -259,6 +261,64 @@ def compress_to_sets(pos, neg, fac):
     
     return set_dictionary
 
+class Types:
+
+    def __init__(self, n):
+        self.i = 0
+        self.n = n
+
+    def __iter__(self):
+        return self
+    
+    def next(self):
+        if self.i < self.n:
+            i = self.i
+            self.i += 1
+            return i
+        else:
+            raise StopIteration()
+
+def print_list(ls):
+    for l in ls:
+        print(l)
+
+def PredicateLogicTypeInference(untyped_dict):
+    """
+    Input: a set_dictionary (see `compress_to_sets`)
+
+    ['0_0', {'2', '3', '6', '8'}, None]
+    """
+
+    untyped = []
+    for key in untyped_dict:
+        for i in range(len(untyped_dict[key])):
+            untyped.append([str(key) + '_' + str(i), untyped_dict[key][0], None])
+
+    var = Types(len(untyped))
+    typed = []
+
+    while untyped:
+
+        # Choose a random set from untyped.
+        c = choice(untyped)
+
+        # Declare the type of the set.
+        c[2] = var.next()
+
+        untyped.remove(c)
+        typed.append(c)
+
+        unknownTypes = deepcopy(untyped)
+        for unknownType in unknownTypes:
+
+            if c[1].intersection(unknownType[1]):
+                
+                untyped.remove(unknownType)
+                unknownType[2] = c[2] # unknownType.type = c.type
+                typed.append(unknownType)
+
+    return typed
+
 def __main():
 
     # Read the arguments from the commandline.
@@ -276,6 +336,8 @@ def __main():
 
     set_dictionary = compress_to_sets(pos, neg, fac)
     pos, neg, fac = compress_clauses(pos, neg, fac)
+
+    print(PredicateLogicTypeInference(set_dictionary))
 
 if __name__ == '__main__':
     __main()
