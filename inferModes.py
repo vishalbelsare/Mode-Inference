@@ -41,7 +41,7 @@ __copyright__ = "Copyright 2018, Alexander L. Hayes"
 __credits__ = ["Alexander L. Hayes", "Kaushik Roy", "Sriraam Natarajan"]
 
 __license__ = "BSD 2-Clause"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
@@ -71,6 +71,9 @@ class SetupArguments:
 
         
 class InferenceUtils:
+    """
+    A set of utilities useful for the inferModes module.
+    """
 
     def __init__(self):
         pass
@@ -93,8 +96,8 @@ class InferenceUtils:
     @staticmethod
     def parse(predicate_string):
         """
-        Input a string of the format:
-           'father(harrypotter,jamespotter).'
+        Input a string of the format: 'father(harrypotter,jamespotter).'
+
         Ensures syntax is correct, then returns a list where [0] is the name of the literal
         and [1] is a list of variables in the rule.
            ['father', ['harrypotter', 'jamespotter']]
@@ -110,6 +113,8 @@ class InferenceUtils:
         """
         Reads the data from file located at 'path', returns a list of strings where each
         string contains the information on that particular line.
+
+        Raises an exception if the data cannot be read.
         """
         try:
             with open(path) as f:
@@ -121,7 +126,7 @@ class InferenceUtils:
     @staticmethod
     def ground_predicate_strings_to_ground_predicate_lists(list_of_strings):
         """
-        Convert a list of strings into a list of lists.
+        Convert a list of ground predicate strings into a list of ground predicate lists.
         
         For example:
              ['f(a1,a2).', 'f(a2,a3).', ...] ==> [['f', ['a1', 'a2']], ['f', ['a2', 'a3']]]
@@ -131,15 +136,19 @@ class InferenceUtils:
     @staticmethod
     def sort_keys(pos, neg, fac):
         """
-        pos: a list of lists representing positive literals.
-        neg: a list of lists representing negative literals.
-        fac: a list of lists representing facts.
+        Input:
+        pos: a list of lists representing positive ground predicates.
+        neg: a list of lists representing negative ground predicates.
+        fac: a list of lists representing factual ground predicates.
+
+        (See `ground_predicate_strings_to_ground_predicate_lists` to construct these lists)
 
         Counts the number of occurances of each item in the head and body of the ground predicates.
+        These keys are mapped to integer values, where lower numbers represent more common items.
         
         Returns two dictionaries:
-        1. predicate_head_index: 
-        2. predicate_body_index: 
+        1. predicate_head_index: maps identifier to key e.g. `{'father': 0, 'childof': 1, 'male': 2, ...}`
+        2. predicate_body_index: maps object to key. e.g. `{'ron': 0, 'george': 1, 'fred': 2, ...}`
         """
 
         # Count each grounding in the head and body.
@@ -187,11 +196,12 @@ class InferenceUtils:
         return ground_predicate_list
     
 def compress_clauses(pos, neg, fac):
-
     """
-    positive: a list of strings representing positive literals.
-    negative: a list of strings representing negative literals.
-    facts: a list of strings representing facts.
+    pos: a list of strings representing positive literals.
+    neg: a list of strings representing negative literals.
+    fac: a list of strings representing facts.
+    
+    Returns: 
     """
 
     predicate_head_index, predicate_body_index = InferenceUtils.sort_keys(pos, neg, fac)
@@ -201,6 +211,53 @@ def compress_clauses(pos, neg, fac):
     new_fac = InferenceUtils.compress_ground_predicates(fac, predicate_head_index, predicate_body_index)
 
     return new_pos, new_neg, new_fac
+
+def compress_to_sets(pos, neg, fac):
+    """
+    Converts the predicates from a dataset into a dictionary where each key represents the head of
+    a predicate, and the value is a list of sets. Each set represents all of the objects at a
+    certain position of the ground predicate.
+
+    For example:
+        Begin    -> {}
+        ...
+        0(5,13). -> {'0': [{5}, {13}]}
+        0(6,8).  -> {'0': [{5, 6}, {8, 13}]}
+        0(3,4).  -> {'0': [{3, 5, 6}, {4, 8, 13}]}
+        1(3,4).  -> {'1': [{3}, {4}], '0': ... }
+        ...
+        End      -> {'0': ..., '1': ..., ...}
+
+    Input:
+    pos: a list of strings representing positive literals.
+    neg: a list of strings representing negative literals.
+    fac: a list of strings representing facts.
+
+    Returns: a dictionary.
+    """
+    set_dictionary = {}
+
+    # Create the keys for the head and body of the predicates.
+    predicate_head_index, predicate_body_index = InferenceUtils.sort_keys(pos, neg, fac)
+    
+    for data in pos + neg + fac:
+
+        key = str(predicate_head_index[data[0]])
+
+        if key not in set_dictionary:
+            # The head of the ground predicate has not been seen before.
+            set_dictionary[key] = []
+
+            # Set the value to a list of sets (number of sets = len(data[1]))
+            for _ in range(len(data[1])):
+                set_dictionary[key].append(set())
+
+        # Each object in the body of the predicate is unioned to the set that has been observed.
+        for obj_index in range(len(data[1])):
+            obj = set(str(predicate_body_index[data[1][obj_index]]))
+            set_dictionary[key][obj_index] = set_dictionary[key][obj_index].union(obj)
+    
+    return set_dictionary
 
 def __main():
 
@@ -217,10 +274,8 @@ def __main():
     neg = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(neg)
     fac = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(fac)
 
+    set_dictionary = compress_to_sets(pos, neg, fac)
     pos, neg, fac = compress_clauses(pos, neg, fac)
-    print('Pos', pos)
-    print('Neg', neg)
-    print('Fac', fac)
-    
+
 if __name__ == '__main__':
     __main()

@@ -156,19 +156,38 @@ class mode_inference_tests(unittest.TestCase):
               InferenceResults.compress_ground_predicates
         """
         i = InferenceUtils()
-        
-        pos = i.ground_predicate_strings_to_ground_predicate_lists(\
-                            ['f(a1, a2).', 'f(a1, a3).'])
-        neg = i.ground_predicate_strings_to_ground_predicate_lists(\
-                            ['f(a2, a1).', 'f(a3, a1).'])
-        fac = i.ground_predicate_strings_to_ground_predicate_lists(\
-                            ['b(a1).', 'b(a2).', 'b(a3).', 'b(a4).', 'b(a3).'])
-        hI, bI = i.sort_keys(pos, neg, fac)
+        pos = i.ground_predicate_strings_to_ground_predicate_lists(['f(a1, a2).', 'f(a1, a3).'])
+        neg = i.ground_predicate_strings_to_ground_predicate_lists(['f(a2, a1).', 'f(a3, a1).'])
+        fac = i.ground_predicate_strings_to_ground_predicate_lists(['b(a1).', 'b(a2).', 'b(a3).', 'b(a4).', 'b(a3).'])
         pos, neg, fac = compress_clauses(pos, neg, fac)
 
         self.assertEqual(pos, ['1,0,2', '1,0,1'])
         self.assertEqual(neg, ['1,2,0', '1,1,0'])
         self.assertEqual(fac, ['0,0', '0,2', '0,1', '0,3', '0,1'])
+
+    def test_compress_to_sets(self):
+        """
+        tests:
+              compress_to_sets
+        """
+        i = InferenceUtils()
+        pos = i.ground_predicate_strings_to_ground_predicate_lists(['f(a1, a2).', 'f(a1, a3).'])
+        neg = i.ground_predicate_strings_to_ground_predicate_lists(['f(a2, a1).', 'f(a3, a1).'])
+        fac = i.ground_predicate_strings_to_ground_predicate_lists(['b(a1).', 'b(a2).', 'b(a3).', 'b(a4).', 'b(a3).'])
+        set_dictionary = compress_to_sets(pos, neg, fac)
+
+        # These keys should be present following set compression.
+        self.assertTrue('0' in set_dictionary)
+        self.assertTrue('1' in set_dictionary)
+        self.assertFalse('2' in set_dictionary)
+
+        # Predicate with head 'f' contains a1, a2, and a3 at both positions.
+        key_f = set_dictionary['1']
+        self.assertEqual(key_f[0], key_f[1])
+        self.assertTrue('3' in set_dictionary['0'][0])
+        self.assertTrue('2' in set_dictionary['0'][0])
+        self.assertTrue('1' in set_dictionary['0'][0])
+        self.assertTrue('0' in set_dictionary['0'][0])
         
 if __name__ == '__main__':
     unittest.main()
