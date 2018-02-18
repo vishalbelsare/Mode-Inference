@@ -11,7 +11,7 @@ A prototype Python package for inferring datatypes and converting them into a re
 **Prerequisites**
 
 * Python (2.7, 3.3, 3.4, 3.5, 3.6)
-  * `collections`, `argparse`, `re`: these should usually be installed already.
+  * `argparse`, `collections`, `copy`, `random`, `re`: All of these are in the Python Standard Library, so they should already be installed by default.
   
 **Installation**
 
@@ -21,7 +21,7 @@ git clone https://github.com/batflyer/Mode-Inference.git
 
 **Quick-Start Guide**
 
-After you clone the repository:
+Commandline Interaction:
 
 ```
 cd Mode-Inference
@@ -31,7 +31,6 @@ mkdir datasets
 
 # Download one of the datasets from GitHub
 curl -L https://github.com/boost-starai/BoostSRL-Misc/blob/master/Datasets/Toy-Cancer/Toy-Cancer.zip?raw=true > datasets/Toy-Cancer.zip
-
 curl -L https://github.com/boost-starai/BoostSRL-Misc/blob/master/Datasets/Toy-Father/Toy-Father.zip?raw=true > datasets/Toy-Father.zip
 
 # Unzip the Data
@@ -40,6 +39,12 @@ unzip Toy-Father.zip
 
 # Infer modes:
 python inferModes.py -pos datasets/Father/train/train_pos.txt -neg datasets/Father/train/train_neg.txt -fac datasets/Father/train/train_facts.txt
+```
+
+Imported as a package:
+
+```
+import inferModes
 ```
 
 ## Contributing
