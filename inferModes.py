@@ -278,10 +278,6 @@ class Types:
         else:
             raise StopIteration()
 
-def print_list(ls):
-    for l in ls:
-        print(l)
-
 def PredicateLogicTypeInference(untyped_dict):
     """
     Input: a set_dictionary (see `compress_to_sets`)
