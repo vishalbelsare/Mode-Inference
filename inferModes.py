@@ -241,6 +241,10 @@ def compress_to_sets(pos, neg, fac):
 
     # Create the keys for the head and body of the predicates.
     predicate_head_index, predicate_body_index = InferenceUtils.sort_keys(pos, neg, fac)
+
+    # TENTATIVELY PRINT THIS TO VERIFY SOME RESULTS.
+    print(predicate_head_index)
+    #print(predicate_body_index)
     
     for data in pos + neg + fac:
 
@@ -256,7 +260,7 @@ def compress_to_sets(pos, neg, fac):
 
         # Each object in the body of the predicate is unioned to the set that has been observed.
         for obj_index in range(len(data[1])):
-            obj = set(str(predicate_body_index[data[1][obj_index]]))
+            obj = set([str(predicate_body_index[data[1][obj_index]])])
             set_dictionary[key][obj_index] = set_dictionary[key][obj_index].union(obj)
     
     return set_dictionary
@@ -288,7 +292,7 @@ def PredicateLogicTypeInference(untyped_dict):
     untyped = []
     for key in untyped_dict:
         for i in range(len(untyped_dict[key])):
-            untyped.append([str(key) + '_' + str(i), untyped_dict[key][0], None])
+            untyped.append([str(key) + '_' + str(i), untyped_dict[key][i], None])
 
     var = Types(len(untyped))
     typed = []
@@ -330,10 +334,14 @@ def __main():
     neg = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(neg)
     fac = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(fac)
 
-    set_dictionary = compress_to_sets(pos, neg, fac)
-    pos, neg, fac = compress_clauses(pos, neg, fac)
+    #pos, neg, fac = compress_clauses(pos, neg, fac)
 
-    print(PredicateLogicTypeInference(set_dictionary))
+    set_dictionary = compress_to_sets(pos, neg, fac)
+    #print(set_dictionary)
+    
+    output = PredicateLogicTypeInference(set_dictionary)
+    for i in output:
+        print(i[0], i[2])
 
 if __name__ == '__main__':
     __main()
