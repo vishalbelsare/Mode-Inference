@@ -188,6 +188,19 @@ class mode_inference_tests(unittest.TestCase):
         self.assertTrue('2' in set_dictionary['0'][0])
         self.assertTrue('1' in set_dictionary['0'][0])
         self.assertTrue('0' in set_dictionary['0'][0])
+
+    def test_predicate_logic_type_inference(self):
+        """
+        tests:
+              PredicateLogicTypeInference
+        """
+        i = InferenceUtils()
+        pos = i.ground_predicate_strings_to_ground_predicate_lists(['f(a1, a2).', 'f(a1, a3).'])
+        neg = i.ground_predicate_strings_to_ground_predicate_lists(['f(a2, a1).', 'f(a3, a1).'])
+        fac = i.ground_predicate_strings_to_ground_predicate_lists(['b(a1).', 'b(a2).', 'b(a3).', 'b(a4).', 'b(a3).'])
+        set_dictionary = compress_to_sets(pos, neg, fac)
+        modes = PredicateLogicTypeInference(set_dictionary)
+        print(modes)
         
 if __name__ == '__main__':
     unittest.main()

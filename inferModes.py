@@ -266,6 +266,10 @@ def compress_to_sets(pos, neg, fac):
     return set_dictionary
 
 class Types:
+    """
+    Types are represented by integers. The maximum number of types (n) should
+    occur when every object is of a different type.
+    """
 
     def __init__(self, n):
         self.i = 0
@@ -282,12 +286,24 @@ class Types:
         else:
             raise StopIteration()
 
+class Predicate:
+
+    def __init__(self, key, object_set):
+        self.key = key
+        self.object_set = object_set
+        self._type = None
+
+    def __repr__(self):
+        return self.key
+
 def PredicateLogicTypeInference(untyped_dict):
     """
     Input: a set_dictionary (see `compress_to_sets`)
 
     ['0_0', {'2', '3', '6', '8'}, None]
     """
+
+    print(untyped_dict)
 
     untyped = []
     for key in untyped_dict:
