@@ -77,9 +77,6 @@ class InferenceUtils:
     A set of utilities useful for the inferModes module.
     """
 
-    def __init__(self):
-        pass
-
     @staticmethod
     def inspect_instance_syntax(example):
         """
@@ -203,7 +200,7 @@ def compress_clauses(pos, neg, fac):
     neg: a list of strings representing negative literals.
     fac: a list of strings representing facts.
     
-    Returns: 
+    Returns:
     """
 
     predicate_head_index, predicate_body_index = InferenceUtils.sort_keys(pos, neg, fac)
@@ -287,23 +284,37 @@ class Types:
             raise StopIteration()
 
 class Predicate:
+    """
+    Predicate object for tracking the predicate identifier (key), and the
+    objects associated with it (object_set).
+
+    The type of a predicate can be set with getType and setType methods.
+    
+    Printing returns a string representing the key, object set, and the type.
+    """
 
     def __init__(self, key, object_set):
         self.key = key
         self.object_set = object_set
         self._type = None
 
+    def getType(self):
+        return self._type
+
+    def setType(self, _type):
+        self._type = _type
+
     def __repr__(self):
-        return self.key
+        return ', '.join([self.key, str(self.object_set), str(self._type)])
 
 def PredicateLogicTypeInference(untyped_dict):
     """
-    Input: a set_dictionary (see `compress_to_sets`)
+    Input: a set_dictionary (refer to the output of `compress_to_sets`)
 
     ['0_0', {'2', '3', '6', '8'}, None]
     """
 
-    print(untyped_dict)
+    #print(untyped_dict)
 
     untyped = []
     for key in untyped_dict:
@@ -325,6 +336,12 @@ def PredicateLogicTypeInference(untyped_dict):
         typed.append(c)
 
         unknownTypes = deepcopy(untyped)
+        
+        """
+        The assumption here is not correct. If A and B are disjoint sets, that
+        does not imply that a set C does not exist that contains element of both.
+        """
+
         for unknownType in unknownTypes:
 
             if c[1].intersection(unknownType[1]):
@@ -333,6 +350,20 @@ def PredicateLogicTypeInference(untyped_dict):
                 unknownType[2] = c[2] # unknownType.type = c.type
                 typed.append(unknownType)
 
+    
+    intermed_rep = {}
+    for t in typed:
+        #print(t[0], t[2])
+        intermed_rep[t[0]] = t[2]
+    for key in untyped_dict:
+        print(key, end='(')
+        for i in range(len(untyped_dict[key])):
+            if (i+1) == len(untyped_dict[key]):
+                print(intermed_rep[str(key) + '_' + str(i)], end=').')
+            else:
+                print(intermed_rep[str(key) + '_' + str(i)], end=', ')
+        print()
+    
     return typed
 
 def __main():
