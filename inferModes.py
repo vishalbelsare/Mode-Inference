@@ -241,7 +241,7 @@ def compress_to_sets(pos, neg, fac):
     predicate_head_index, predicate_body_index = InferenceUtils.sort_keys(pos, neg, fac)
 
     # TENTATIVELY PRINT THIS TO VERIFY SOME RESULTS.
-    print(predicate_head_index)
+    #print(predicate_head_index)
     #print(predicate_body_index)
     
     for data in pos + neg + fac:
@@ -372,27 +372,32 @@ def __main():
     # Read the arguments from the commandline.
     args = SetupArguments().args
 
-    if args.compress:
-        print('This is a test.')
-    
+
     # Use the 'read' utility to read positives, negatives, and facts.
     pos = InferenceUtils.read(args.positive)
     neg = InferenceUtils.read(args.negative)
     fac = InferenceUtils.read(args.facts)
 
-    # Use the 'ground_predicate_strings_to_ground_predicate_lists' utility to convert them.
+    #  Use the 'ground_predicate_strings_to_ground_predicate_lists' utility to convert them.
     pos = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(pos)
     neg = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(neg)
     fac = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(fac)
 
-    #pos, neg, fac = compress_clauses(pos, neg, fac)
+    if args.compress:
+        """
+        Compress the pos, neg, and fac into their minimal forms using the compress_clauses method.
+        """
+        compressed_pos, compressed_neg, compressed_fac = compress_clauses(pos, neg, fac)
+        for c in compressed_pos + compressed_neg + compressed_fac:
+            print(c)
 
-    set_dictionary = compress_to_sets(pos, neg, fac)
-    #print(set_dictionary)
+    else:
+        set_dictionary = compress_to_sets(pos, neg, fac)
+        # print(set_dictionary)
     
-    output = PredicateLogicTypeInference(set_dictionary)
-    for i in output:
-        print(i[0], i[2])
+        output = PredicateLogicTypeInference(set_dictionary)
+        for i in output:
+            print(i[0], i[2])
 
 if __name__ == '__main__':
     __main()
