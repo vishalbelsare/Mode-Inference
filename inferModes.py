@@ -64,7 +64,7 @@ class SetupArguments:
     
         parser = argparse.ArgumentParser(description='Minimizing positives, negatives, and facts, and performing mode inference', epilog="Copyright 2018 Alexander L. Hayes. BSD 2-Clause. A full copy of the license is available at the head of the source. The text can also be found online <https://opensource.org/licenses/BSD-2-Clause>.")
         parser.add_argument("-v", "--verbose", help="Increase verbosity to help with debugging.", default=verbose, action="store_true")
-        parser.add_argument("-c", "--compress", help="Print the minimized version of the dataset.", type=compress, action="store_true")
+        parser.add_argument("-c", "--compress", help="Print the minimized version of the dataset.", default=compress, action="store_true")
         parser.add_argument("-pos", "--positive", help="Path to positive examples.", type=str, default=positive)
         parser.add_argument("-neg", "--negative", help="Path to negative examples.", type=str, default=negative)
         parser.add_argument("-fac", "--facts", help="Path to relational facts.", type=str, default=facts)
@@ -371,6 +371,9 @@ def __main():
 
     # Read the arguments from the commandline.
     args = SetupArguments().args
+
+    if args.compress:
+        print('This is a test.')
     
     # Use the 'read' utility to read positives, negatives, and facts.
     pos = InferenceUtils.read(args.positive)
