@@ -319,7 +319,7 @@ def PredicateLogicTypeInference(untyped_dict):
     ['0_0', {'2', '3', '6', '8'}, None]
     """
 
-    #print(untyped_dict)
+    print(untyped_dict)
 
     untyped = []
     for key in untyped_dict:
@@ -350,6 +350,7 @@ def PredicateLogicTypeInference(untyped_dict):
         for unknownType in unknownTypes:
 
             if c[1].intersection(unknownType[1]):
+                # If there is an intersection between the two sets, we need to restart the loop.
                 
                 untyped.remove(unknownType)
                 unknownType[2] = c[2] # unknownType.type = c.type
