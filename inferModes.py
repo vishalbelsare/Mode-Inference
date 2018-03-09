@@ -195,7 +195,7 @@ class InferenceUtils:
             ground_predicate_list.append(new_predicate)
         return ground_predicate_list
     
-def compress_clauses(pos, neg, fac):
+def compress_clauses(pos, neg, fac, print_index=False):
     """
     pos: a list of strings representing positive literals.
     neg: a list of strings representing negative literals.
@@ -205,6 +205,10 @@ def compress_clauses(pos, neg, fac):
     """
 
     predicate_head_index, predicate_body_index = InferenceUtils.sort_keys(pos, neg, fac)
+
+    if print_index:
+        print(predicate_head_index)
+        print(predicate_body_index)
     
     new_pos = InferenceUtils.compress_ground_predicates(pos, predicate_head_index, predicate_body_index)
     new_neg = InferenceUtils.compress_ground_predicates(neg, predicate_head_index, predicate_body_index)
@@ -354,7 +358,6 @@ def PredicateLogicTypeInference(untyped_dict):
     
     intermed_rep = {}
     for t in typed:
-        #print(t[0], t[2])
         intermed_rep[t[0]] = t[2]
     for key in untyped_dict:
         print(key, end='(')
@@ -372,7 +375,6 @@ def __main():
     # Read the arguments from the commandline.
     args = SetupArguments().args
 
-
     # Use the 'read' utility to read positives, negatives, and facts.
     pos = InferenceUtils.read(args.positive)
     neg = InferenceUtils.read(args.negative)
@@ -387,8 +389,16 @@ def __main():
         """
         Compress the pos, neg, and fac into their minimal forms using the compress_clauses method.
         """
-        compressed_pos, compressed_neg, compressed_fac = compress_clauses(pos, neg, fac)
-        for c in compressed_pos + compressed_neg + compressed_fac:
+        compressed_pos, compressed_neg, compressed_fac = compress_clauses(pos, neg, fac, print_index=True)
+
+        print('__Pos')
+        for c in compressed_pos:
+            print(c)
+        print('__Neg')
+        for c in compressed_neg:
+            print(c)
+        print('__Fac')
+        for c in compressed_fac:
             print(c)
 
     else:
