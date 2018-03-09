@@ -60,10 +60,11 @@ class SetupArguments:
     @batflyer: I am maintaining these as classes in the event that this reaches a point where I convert it into a package.
     """
 
-    def __init__(self, verbose=False, positive=None, negative=None, facts=None):
+    def __init__(self, verbose=False, compress=False, positive=None, negative=None, facts=None):
     
         parser = argparse.ArgumentParser(description='Minimizing positives, negatives, and facts, and performing mode inference', epilog="Copyright 2018 Alexander L. Hayes. BSD 2-Clause. A full copy of the license is available at the head of the source. The text can also be found online <https://opensource.org/licenses/BSD-2-Clause>.")
         parser.add_argument("-v", "--verbose", help="Increase verbosity to help with debugging.", default=verbose, action="store_true")
+        parser.add_argument("-c", "--compress", help="Print the minimized version of the dataset.", default=compress, action="store_true")
         parser.add_argument("-pos", "--positive", help="Path to positive examples.", type=str, default=positive)
         parser.add_argument("-neg", "--negative", help="Path to negative examples.", type=str, default=negative)
         parser.add_argument("-fac", "--facts", help="Path to relational facts.", type=str, default=facts)
@@ -240,7 +241,7 @@ def compress_to_sets(pos, neg, fac):
     predicate_head_index, predicate_body_index = InferenceUtils.sort_keys(pos, neg, fac)
 
     # TENTATIVELY PRINT THIS TO VERIFY SOME RESULTS.
-    print(predicate_head_index)
+    #print(predicate_head_index)
     #print(predicate_body_index)
     
     for data in pos + neg + fac:
@@ -259,7 +260,7 @@ def compress_to_sets(pos, neg, fac):
         for obj_index in range(len(data[1])):
             obj = set([str(predicate_body_index[data[1][obj_index]])])
             set_dictionary[key][obj_index] = set_dictionary[key][obj_index].union(obj)
-    
+
     return set_dictionary
 
 class Types:
@@ -370,25 +371,33 @@ def __main():
 
     # Read the arguments from the commandline.
     args = SetupArguments().args
-    
+
+
     # Use the 'read' utility to read positives, negatives, and facts.
     pos = InferenceUtils.read(args.positive)
     neg = InferenceUtils.read(args.negative)
     fac = InferenceUtils.read(args.facts)
 
-    # Use the 'ground_predicate_strings_to_ground_predicate_lists' utility to convert them.
+    #  Use the 'ground_predicate_strings_to_ground_predicate_lists' utility to convert them.
     pos = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(pos)
     neg = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(neg)
     fac = InferenceUtils.ground_predicate_strings_to_ground_predicate_lists(fac)
 
-    #pos, neg, fac = compress_clauses(pos, neg, fac)
+    if args.compress:
+        """
+        Compress the pos, neg, and fac into their minimal forms using the compress_clauses method.
+        """
+        compressed_pos, compressed_neg, compressed_fac = compress_clauses(pos, neg, fac)
+        for c in compressed_pos + compressed_neg + compressed_fac:
+            print(c)
 
-    set_dictionary = compress_to_sets(pos, neg, fac)
-    #print(set_dictionary)
+    else:
+        set_dictionary = compress_to_sets(pos, neg, fac)
+        # print(set_dictionary)
     
-    output = PredicateLogicTypeInference(set_dictionary)
-    for i in output:
-        print(i[0], i[2])
+        output = PredicateLogicTypeInference(set_dictionary)
+        for i in output:
+            print(i[0], i[2])
 
 if __name__ == '__main__':
     __main()
