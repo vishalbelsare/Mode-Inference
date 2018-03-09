@@ -60,10 +60,11 @@ class SetupArguments:
     @batflyer: I am maintaining these as classes in the event that this reaches a point where I convert it into a package.
     """
 
-    def __init__(self, verbose=False, positive=None, negative=None, facts=None):
+    def __init__(self, verbose=False, compress=False, positive=None, negative=None, facts=None):
     
         parser = argparse.ArgumentParser(description='Minimizing positives, negatives, and facts, and performing mode inference', epilog="Copyright 2018 Alexander L. Hayes. BSD 2-Clause. A full copy of the license is available at the head of the source. The text can also be found online <https://opensource.org/licenses/BSD-2-Clause>.")
         parser.add_argument("-v", "--verbose", help="Increase verbosity to help with debugging.", default=verbose, action="store_true")
+        parser.add_argument("-c", "--compress", help="Print the minimized version of the dataset.", type=compress, action="store_true")
         parser.add_argument("-pos", "--positive", help="Path to positive examples.", type=str, default=positive)
         parser.add_argument("-neg", "--negative", help="Path to negative examples.", type=str, default=negative)
         parser.add_argument("-fac", "--facts", help="Path to relational facts.", type=str, default=facts)
@@ -259,7 +260,7 @@ def compress_to_sets(pos, neg, fac):
         for obj_index in range(len(data[1])):
             obj = set([str(predicate_body_index[data[1][obj_index]])])
             set_dictionary[key][obj_index] = set_dictionary[key][obj_index].union(obj)
-    
+
     return set_dictionary
 
 class Types:
